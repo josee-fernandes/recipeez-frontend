@@ -1,5 +1,7 @@
 import { format } from 'date-fns'
 import { useCallback, useEffect, useState } from 'react'
+
+import { CreateRecipeForm } from '@/components/CreateRecipeForm'
 import { api } from '@/lib/axios'
 
 interface IRecipe {
@@ -64,6 +66,10 @@ export const App: React.FC = () => {
 		}
 	}, [])
 
+	const onRecipeCreated = () => {
+		handleLoadRecipes()
+	}
+
 	useEffect(() => {
 		checkAuthentication()
 	}, [checkAuthentication])
@@ -75,9 +81,10 @@ export const App: React.FC = () => {
 	}, [userToken, handleLoadRecipes])
 
 	return (
-		<div>
-			<form onSubmit={handleSubmit}>
-				<label>
+		<div className="py-4 max-w-[1200px] mx-auto">
+			<form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+				<h2 className="text-2xl font-bold">Autenticação</h2>
+				<label className="flex gap-2 items-center">
 					E-mail
 					<input
 						type="email"
@@ -86,7 +93,7 @@ export const App: React.FC = () => {
 						onChange={handleEmailChange}
 					/>
 				</label>
-				<label>
+				<label className="flex gap-2 items-center">
 					Senha
 					<input
 						type="password"
@@ -95,21 +102,24 @@ export const App: React.FC = () => {
 						onChange={handlePasswordChange}
 					/>
 				</label>
-				<button type="submit" className="bg-blue-500 text-white p-2 rounded-md">
+				<button type="submit" className="bg-blue-500 text-white p-2 rounded-lg max-w-72">
 					Entrar
 				</button>
 			</form>
+			<hr className="my-4 border-zinc-300" />
+			<CreateRecipeForm onCreate={onRecipeCreated} />
+			<hr className="my-4 border-zinc-300" />
 			<div>
 				<ul className="flex flex-wrap gap-4">
 					{recipes.map((recipe) => (
-						<li key={recipe.id}>
-							<article className="flex flex-col gap-2 border-2 border-zinc-300 rounded-lg p-4 max-w-96">
-								<header>
+						<li key={recipe.id} className="flex flex-col">
+							<article className="flex flex-col gap-2 border-2 border-zinc-300 rounded-lg p-4 max-w-96 w-96 h-128">
+								<header className="">
 									<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
 									<h3 className="text-2xl font-bold">{recipe.title}</h3>
 									<p className="text-sm text-zinc-500">{recipe.description}</p>
 								</header>
-								<section className="flex flex-col gap-4">
+								<section className="flex flex-col gap-4 overflow-x-auto">
 									<div>
 										<h4 className="text-lg font-bold">Ingredientes</h4>
 										<ul>
@@ -121,7 +131,7 @@ export const App: React.FC = () => {
 
 									<div>
 										<h4 className="text-lg font-bold">Modo de preparo</h4>
-										<p className="text-sm text-zinc-500">{recipe.instructions}</p>
+										<p className="text-base text-zinc-950">{recipe.instructions}</p>
 									</div>
 								</section>
 								<footer>
