@@ -14,20 +14,15 @@ interface IAuthContextProviderProps {
 export const AuthContextProvider: React.FC<IAuthContextProviderProps> = ({ children }) => {
 	const [userToken, setUserToken] = useState<string | null>(null)
 
-	const updateUserToken = useCallback(
-		(newToken: string | null) => {
-			if (userToken !== newToken) {
-				setUserToken(newToken)
-			}
+	const updateUserToken = useCallback((newToken: string | null) => {
+		setUserToken((oldToken) => (oldToken !== newToken ? newToken : oldToken))
 
-			if (newToken) {
-				localStorage.setItem('@recipeez-0.0.1:token', newToken)
-			} else {
-				localStorage.removeItem('@recipeez-0.0.1:token')
-			}
-		},
-		[userToken],
-	)
+		if (newToken) {
+			localStorage.setItem('@recipeez-0.0.1:token', newToken)
+		} else {
+			localStorage.removeItem('@recipeez-0.0.1:token')
+		}
+	}, [])
 
 	const contextValues = useMemo(() => ({ userToken, updateUserToken }), [userToken, updateUserToken])
 

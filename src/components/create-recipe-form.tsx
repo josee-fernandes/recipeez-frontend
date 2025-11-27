@@ -179,7 +179,11 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 					onChange={handleInstructionsChange}
 				/>
 			</label>
-			<button type="submit" className="bg-blue-500 text-white p-2 rounded-lg max-w-72" disabled={isSubmitting}>
+			<button
+				type="submit"
+				className="bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded-lg max-w-72 transition-all cursor-pointer"
+				disabled={isSubmitting}
+			>
 				{isSubmitting ? <LoaderCircle className="animate-spin" /> : 'Criar receita'}
 			</button>
 		</form>

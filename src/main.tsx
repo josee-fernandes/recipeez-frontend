@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 
 import '@/styles/global.css'
 
-import { App } from './App.tsx'
+import { App } from './app'
 
 // biome-ignore lint: root will exist
 createRoot(document.getElementById('root')!).render(
