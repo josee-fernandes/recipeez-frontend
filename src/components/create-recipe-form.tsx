@@ -131,30 +131,15 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 
 			<label className="flex gap-2 items-center">
 				Título
-				<input
-					type="text"
-					className="border-2 border-gray-300 rounded-md p-2"
-					value={title}
-					onChange={handleTitleChange}
-				/>
+				<input type="text" className="border-2 rounded-md p-2" value={title} onChange={handleTitleChange} />
 			</label>
 			<label className="flex gap-2 items-center">
 				Descrição
-				<textarea
-					className="border-2 border-gray-300 rounded-md p-2"
-					value={description}
-					rows={4}
-					onChange={handleDescriptionChange}
-				/>
+				<textarea className="border-2 rounded-md p-2" value={description} rows={4} onChange={handleDescriptionChange} />
 			</label>
 			<label className="flex gap-2 items-center">
 				Foto
-				<input
-					type="file"
-					className="border-2 border-gray-300 rounded-md p-2"
-					accept="image/*"
-					onChange={handlePhotoChange}
-				/>
+				<input type="file" className="border-2 rounded-md p-2" accept="image/*" onChange={handlePhotoChange} />
 				{photoPreview && (
 					<div className="mt-2">
 						<img src={photoPreview} alt="Preview" className="max-w-xs max-h-48 object-cover rounded" />
@@ -165,7 +150,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 				Ingredientes
 				<input
 					type="text"
-					className="border-2 border-gray-300 rounded-md p-2"
+					className="border-2 rounded-md p-2"
 					value={ingredients.join(';')}
 					onChange={handleIngredientsChange}
 				/>
@@ -174,7 +159,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 				Instruções
 				<input
 					type="text"
-					className="border-2 border-gray-300 rounded-md p-2"
+					className="border-2 rounded-md p-2"
 					value={instructions}
 					onChange={handleInstructionsChange}
 				/>

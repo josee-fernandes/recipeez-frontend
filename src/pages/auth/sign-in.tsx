@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth'
 import { api } from '@/lib/axios'
 
@@ -40,39 +41,13 @@ export const SignIn: React.FC = () => {
 
 	return (
 		<div className="max-w-[1200px] mx-auto py-4 w-full h-screen flex flex-col items-center justify-center">
-			<div className="border-2 border-zinc-200 flex flex-col gap-4 p-8 rounded-lg shadow-2xl">
+			<div className="border-2 flex flex-col gap-4 p-8 rounded-lg shadow-2xl w-full max-w-96">
 				<h1 className="text-2xl font-bold text-center">Recipeez</h1>
 				<form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-					<div>
-						<label htmlFor="email" className="text-base">
-							E-mail
-						</label>
-						<input
-							id="email"
-							type="email"
-							className="border-2 border-gray-300 rounded-md p-2 max-w-72 w-full"
-							value={email}
-							onChange={handleEmailChange}
-						/>
-					</div>
-					<div>
-						<label htmlFor="password" className="text-base">
-							Senha
-						</label>
-						<input
-							id="password"
-							type="password"
-							className="border-2 border-gray-300 rounded-md p-2 max-w-72 w-full"
-							value={password}
-							onChange={handlePasswordChange}
-						/>
-					</div>
-					<button
-						type="submit"
-						className="bg-indigo-500 hover:bg-indigo-600 text-white p-2 rounded-lg max-w-72 transition-all cursor-pointer"
-					>
-						Entrar
-					</button>
+					<Input id="email" type="email" placeholder="E-mail" value={email} onChange={handleEmailChange} />
+
+					<Input id="password" type="password" placeholder="Senha" value={password} onChange={handlePasswordChange} />
+					<Button type="submit">Entrar</Button>
 				</form>
 			</div>
 		</div>

@@ -1,6 +1,7 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
-
+import { ThemeProvider } from '@/components/theme-provider'
 import { AuthContextProvider } from '@/contexts/auth'
 import { api } from '@/lib/axios'
 import { SignIn } from '@/pages/auth/sign-in'
@@ -67,28 +68,34 @@ const IndexRoute: React.FC = () => {
 }
 
 export const App: React.FC = () => {
+	const queryClient = new QueryClient()
+
 	return (
 		<AuthContextProvider>
-			<BrowserRouter>
-				<Routes>
-					<Route index element={<IndexRoute />} />
-					<Route
-						path="/auth/sign-in"
-						element={
-							<RedirectIfAuthenticated>
-								<SignIn />
-							</RedirectIfAuthenticated>
-						}
-					/>
-					<Route element={<GlobalTemplate />}>
-						<Route path="/recipes" element={<RecipesLayout />}>
-							<Route index element={<Recipes />} />
-							<Route path="new" element={<NewRecipe />} />
-						</Route>
-					</Route>
-					<Route path="*" element={<Navigate to="/auth/sign-in" replace />} />
-				</Routes>
-			</BrowserRouter>
+			<QueryClientProvider client={queryClient}>
+				<ThemeProvider>
+					<BrowserRouter>
+						<Routes>
+							<Route index element={<IndexRoute />} />
+							<Route
+								path="/auth/sign-in"
+								element={
+									<RedirectIfAuthenticated>
+										<SignIn />
+									</RedirectIfAuthenticated>
+								}
+							/>
+							<Route element={<GlobalTemplate />}>
+								<Route path="/recipes" element={<RecipesLayout />}>
+									<Route index element={<Recipes />} />
+									<Route path="new" element={<NewRecipe />} />
+								</Route>
+							</Route>
+							<Route path="*" element={<Navigate to="/auth/sign-in" replace />} />
+						</Routes>
+					</BrowserRouter>
+				</ThemeProvider>
+			</QueryClientProvider>
 		</AuthContextProvider>
 	)
 }

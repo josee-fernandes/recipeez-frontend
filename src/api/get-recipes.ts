@@ -1,0 +1,8 @@
+import type { IRecipe } from '@/@types/recipe'
+import { api } from '@/lib/axios'
+
+export async function getRecipes() {
+	const { data } = await api.get<IRecipe[]>('/recipes')
+
+	return data
+}
