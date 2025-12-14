@@ -1,57 +1,122 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+import { signIn } from '@/api/sign-in'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useAuth } from '@/contexts/auth'
-import { api } from '@/lib/axios'
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
+import { useAuthStore } from '@/stores/auth'
 
 export const Route = createFileRoute('/_auth/sign-in')({
 	component: RouteComponent,
+	validateSearch: (search) => {
+		return z
+			.object({
+				email: z.string().optional(),
+			})
+			.parse(search)
+	},
 })
 
+const signInFormSchema = z.object({
+	email: z.email({ message: 'E-mail inválido' }),
+	password: z.string().min(1, { message: 'Senha é obrigatória' }),
+})
+
+type SignInFormValues = z.infer<typeof signInFormSchema>
+
 function RouteComponent() {
-	const { updateUserToken } = useAuth()
 	const navigate = useNavigate()
+	const { email } = Route.useSearch()
+	const { setMemoryUser } = useAuthStore()
 
-	const [email, setEmail] = useState('')
-	const [password, setPassword] = useState('')
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<SignInFormValues>({
+		resolver: zodResolver(signInFormSchema),
+		defaultValues: {
+			email: email,
+			password: '',
+		},
+	})
 
-	const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setEmail(event.target.value)
+	const { mutateAsync: authenticate, isPending: isAuthenticating } = useMutation({
+		mutationFn: signIn,
+		onSuccess: (response) => {
+			setMemoryUser(response)
+			navigate({ to: '/recipes', replace: true })
+		},
+		onError: () => {
+			toast.error('Credenciais inválidas')
+		},
+	})
+
+	const [isVisible, setIsVisible] = useState(false)
+
+	async function handleSignIn(data: SignInFormValues) {
+		await authenticate({ email: data.email, password: data.password })
 	}
 
-	const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setPassword(event.target.value)
+	function handleFormErrors() {
+		toast.error('Erro ao preencher o formulário', {
+			description: (
+				<div className="flex flex-col">
+					{Object.entries(errors).map(([key, value]) => (
+						<p key={key}>{value.message}</p>
+					))}
+				</div>
+			),
+			duration: 5000,
+		})
 	}
 
-	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault()
+	function handleTogglePasswordVisibility() {
+		setIsVisible((oldIsVisible) => !oldIsVisible)
+	}
 
-		try {
-			const body = {
-				email,
-				password,
-			}
-
-			const { data } = await api.post('/auth/sign-in', body)
-
-			updateUserToken(data.token)
-			localStorage.setItem('@recipeez-0.0.1:token', data.token)
-			navigate({ to: '/recipes' })
-		} catch (error) {
-			console.error(error)
+	useEffect(() => {
+		if (Object.keys(errors).length > 0) {
+			handleFormErrors()
 		}
-	}
+	}, [errors])
 
 	return (
 		<div className="max-w-[1200px] mx-auto py-4 w-full h-screen flex flex-col items-center justify-center">
 			<div className="border-2 flex flex-col gap-4 p-8 rounded-lg shadow-2xl w-full max-w-96">
 				<h1 className="text-2xl font-bold text-center">Recipeez</h1>
-				<form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-					<Input id="email" type="email" placeholder="E-mail" value={email} onChange={handleEmailChange} />
+				<form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSignIn)}>
+					<Input id="email" type="email" placeholder="E-mail" {...register('email')} />
 
-					<Input id="password" type="password" placeholder="Senha" value={password} onChange={handlePasswordChange} />
-					<Button type="submit">Entrar</Button>
+					<InputGroup>
+						<InputGroupInput
+							type={isVisible ? 'text' : 'password'}
+							placeholder="Senha"
+							disabled={isAuthenticating}
+							{...register('password')}
+						/>
+						<InputGroupAddon align="inline-end">
+							<InputGroupButton
+								aria-label="Ver senha"
+								title="Ver senha"
+								size="icon-sm"
+								disabled={isAuthenticating}
+								onClick={handleTogglePasswordVisibility}
+							>
+								{isVisible ? <EyeOff /> : <Eye />}
+							</InputGroupButton>
+						</InputGroupAddon>
+					</InputGroup>
+					<Button type="submit" disabled={isAuthenticating}>
+						{isAuthenticating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Entrar'}
+					</Button>
 				</form>
 			</div>
 		</div>

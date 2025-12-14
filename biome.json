@@ -8,10 +8,12 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "src/**/*.ts",
-      "src/**/*.tsx",
-      "src/**/*.js",
-      "src/**/*.jsx",
+      "**/src/**/*",
+      "**/.vscode/**/*",
+      "**/index.html",
+      "**/vite.config.ts",
+      "!**/src/route-tree.gen.ts",
+      "!**/src/styles.css",
       "!**/dist",
       "!**/node_modules"
     ]
@@ -20,11 +22,22 @@
     "enabled": true,
     "indentStyle": "tab"
   },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true
-    }
+    },
+    "includes": [
+      "!**/src/components/ui/**/*"
+    ]
   },
   "javascript": {
     "formatter": {
@@ -33,12 +46,9 @@
       "lineWidth": 120
     }
   },
-  "assist": {
-    "enabled": true,
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   }
 }

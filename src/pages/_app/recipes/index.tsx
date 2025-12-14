@@ -4,14 +4,15 @@ import { AxiosError } from 'axios'
 import { format } from 'date-fns'
 
 import { getRecipes } from '@/api/get-recipes'
-import { useAuth } from '@/contexts/auth'
+import { RecipesSkeleton } from '@/components/recipes-skeleton'
+import { useAuthStore } from '@/stores/auth'
 
 export const Route = createFileRoute('/_app/recipes/')({
 	component: RouteComponent,
 })
 
 function RouteComponent() {
-	const { updateUserToken } = useAuth()
+	const { clearMemoryUser } = useAuthStore()
 	const navigate = useNavigate()
 
 	const {
@@ -27,24 +28,21 @@ function RouteComponent() {
 	if (recipesError) {
 		if (recipesError instanceof AxiosError) {
 			if (recipesError.response?.data?.error === 'jwt expired') {
-				updateUserToken(null)
+				clearMemoryUser()
 
-				navigate({ to: '/sign-in' })
+				navigate({ to: '/sign-in', search: { email: '' } })
 			}
 		}
-	}
-
-	if (isRecipesLoading) {
-		return <div>Carregando...</div>
 	}
 
 	return (
 		<div className="max-w-[1200px] mx-auto py-4">
 			<ul className="flex flex-wrap gap-4">
+				{isRecipesLoading && <RecipesSkeleton />}
 				{recipes?.map((recipe) => (
 					<li key={recipe.id} className="flex flex-col">
 						<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 h-128">
-							<header className=''>
+							<header className="">
 								<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
 								<h3 className="text-2xl font-bold">{recipe.title}</h3>
 								<p className="text-sm text-zinc-500">{recipe.description}</p>

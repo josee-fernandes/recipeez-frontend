@@ -5,5 +5,5 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-	return <Navigate to="/" replace />
+	return <Navigate to="/sign-in" replace />
 }

@@ -1,18 +1,59 @@
 import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '@/contexts/auth'
+import { isAxiosError } from 'axios'
+import { useEffect, useMemo } from 'react'
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { api } from '@/lib/axios'
+import { useAuthStore } from '@/stores/auth'
 
 export const Route = createFileRoute('/_app')({
 	component: RouteComponent,
 })
 
 function RouteComponent() {
-	const { updateUserToken } = useAuth()
 	const navigate = useNavigate()
+	const { isAuthenticated, clearMemoryUser } = useAuthStore()
+	const user = useAuthStore((state) => state.user)
 
-	const handleSignOut = () => {
-		updateUserToken(null)
-		navigate({ to: '/sign-in' })
+	const userNameFallback = useMemo(
+		() =>
+			user?.token
+				.split(' ')
+				.map((letter) => letter[0])
+				.join('')
+				.toUpperCase() ?? 'RC', // Recipeez
+		[user?.token],
+	)
+
+	function handleSignOut() {
+		clearMemoryUser()
+		navigate({ to: '/sign-in', replace: true, search: { email: '' } })
 	}
+
+	useEffect(() => {
+		if (!isAuthenticated) {
+			navigate({ to: '/sign-in', replace: true, search: { email: '' } })
+			return
+		}
+
+		const responseInterceptorId = api.interceptors.response.use(
+			(response) => response,
+			(error) => {
+				if (isAxiosError(error)) {
+					const status = error.response?.status
+
+					if (status === 401) {
+						clearMemoryUser()
+						navigate({ to: '/sign-in', replace: true, search: { email: '' } })
+					}
+				}
+			},
+		)
+
+		return () => {
+			api.interceptors.response.eject(responseInterceptorId)
+		}
+	}, [])
 
 	return (
 		<div className="w-full h-screen overflow-hidden flex flex-col">
@@ -25,6 +66,10 @@ function RouteComponent() {
 					<Link to="/recipes/new" className="text-white">
 						Nova Receita
 					</Link>
+					<Avatar>
+						<AvatarImage src="" alt="User" />
+						<AvatarFallback>{userNameFallback}</AvatarFallback>
+					</Avatar>
 					<button
 						type="button"
 						className="bg-rose-500 hover:bg-rose-700 text-white p-2 rounded-lg max-w-72 transition-all cursor-pointer"
