@@ -1,12 +1,15 @@
-import { useNavigate } from 'react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { CreateRecipeForm } from '@/components/create-recipe-form'
+export const Route = createFileRoute('/_app/recipes/new')({
+	component: RouteComponent,
+})
 
-export const NewRecipe: React.FC = () => {
+function RouteComponent() {
 	const navigate = useNavigate()
 
 	const onRecipeCreated = () => {
-		navigate('/recipes')
+		navigate({ to: '/recipes' })
 	}
 
 	return (
@@ -16,5 +19,3 @@ export const NewRecipe: React.FC = () => {
 		</div>
 	)
 }
-
-NewRecipe.displayName = 'NewRecipe'

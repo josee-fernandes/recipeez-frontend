@@ -1,13 +1,17 @@
-import { Link, Outlet, useNavigate } from 'react-router'
+import { createFileRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/contexts/auth'
 
-export const GlobalTemplate: React.FC = () => {
+export const Route = createFileRoute('/_app')({
+	component: RouteComponent,
+})
+
+function RouteComponent() {
 	const { updateUserToken } = useAuth()
 	const navigate = useNavigate()
 
 	const handleSignOut = () => {
 		updateUserToken(null)
-		navigate('/auth/sign-in')
+		navigate({ to: '/sign-in' })
 	}
 
 	return (
@@ -36,5 +40,3 @@ export const GlobalTemplate: React.FC = () => {
 		</div>
 	)
 }
-
-GlobalTemplate.displayName = 'GlobalTemplate'

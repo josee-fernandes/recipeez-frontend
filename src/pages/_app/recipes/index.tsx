@@ -1,18 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AxiosError } from 'axios'
 import { format } from 'date-fns'
-import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
 
-import type { IRecipe } from '@/@types/recipe'
 import { getRecipes } from '@/api/get-recipes'
 import { useAuth } from '@/contexts/auth'
-import { api } from '@/lib/axios'
 
-const getToken = () => localStorage.getItem('@recipeez-0.0.1:token')
+export const Route = createFileRoute('/_app/recipes/')({
+	component: RouteComponent,
+})
 
-export const Recipes: React.FC = () => {
-	const { userToken, updateUserToken } = useAuth()
+function RouteComponent() {
+	const { updateUserToken } = useAuth()
 	const navigate = useNavigate()
 
 	const {
@@ -30,7 +29,7 @@ export const Recipes: React.FC = () => {
 			if (recipesError.response?.data?.error === 'jwt expired') {
 				updateUserToken(null)
 
-				navigate('/auth/sign-in')
+				navigate({ to: '/sign-in' })
 			}
 		}
 	}
@@ -45,7 +44,7 @@ export const Recipes: React.FC = () => {
 				{recipes?.map((recipe) => (
 					<li key={recipe.id} className="flex flex-col">
 						<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 h-128">
-							<header className="">
+							<header className=''>
 								<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
 								<h3 className="text-2xl font-bold">{recipe.title}</h3>
 								<p className="text-sm text-zinc-500">{recipe.description}</p>
@@ -80,5 +79,3 @@ export const Recipes: React.FC = () => {
 		</div>
 	)
 }
-
-Recipes.displayName = 'Recipes'

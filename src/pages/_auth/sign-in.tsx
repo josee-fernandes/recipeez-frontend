@@ -1,11 +1,15 @@
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/contexts/auth'
 import { api } from '@/lib/axios'
 
-export const SignIn: React.FC = () => {
+export const Route = createFileRoute('/_auth/sign-in')({
+	component: RouteComponent,
+})
+
+function RouteComponent() {
 	const { updateUserToken } = useAuth()
 	const navigate = useNavigate()
 
@@ -33,7 +37,7 @@ export const SignIn: React.FC = () => {
 
 			updateUserToken(data.token)
 			localStorage.setItem('@recipeez-0.0.1:token', data.token)
-			navigate('/recipes')
+			navigate({ to: '/recipes' })
 		} catch (error) {
 			console.error(error)
 		}
@@ -53,5 +57,3 @@ export const SignIn: React.FC = () => {
 		</div>
 	)
 }
-
-SignIn.displayName = 'SignIn'
