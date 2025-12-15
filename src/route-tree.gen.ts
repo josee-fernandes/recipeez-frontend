@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './pages/index'
 import { Route as AuthSignInRouteImport } from './pages/_auth/sign-in'
 import { Route as AppRecipesIndexRouteImport } from './pages/_app/recipes/index'
 import { Route as AppRecipesNewRouteImport } from './pages/_app/recipes/new'
+import { Route as AppRecipesIdRouteImport } from './pages/_app/recipes/$id'
 
 const AppLayoutRoute = AppLayoutRouteImport.update({
   id: '/_app',
@@ -39,16 +40,23 @@ const AppRecipesNewRoute = AppRecipesNewRouteImport.update({
   path: '/recipes/new',
   getParentRoute: () => AppLayoutRoute,
 } as any)
+const AppRecipesIdRoute = AppRecipesIdRouteImport.update({
+  id: '/recipes/$id',
+  path: '/recipes/$id',
+  getParentRoute: () => AppLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-in': typeof AuthSignInRoute
+  '/recipes/$id': typeof AppRecipesIdRoute
   '/recipes/new': typeof AppRecipesNewRoute
   '/recipes': typeof AppRecipesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof AuthSignInRoute
+  '/recipes/$id': typeof AppRecipesIdRoute
   '/recipes/new': typeof AppRecipesNewRoute
   '/recipes': typeof AppRecipesIndexRoute
 }
@@ -57,19 +65,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppLayoutRouteWithChildren
   '/_auth/sign-in': typeof AuthSignInRoute
+  '/_app/recipes/$id': typeof AppRecipesIdRoute
   '/_app/recipes/new': typeof AppRecipesNewRoute
   '/_app/recipes/': typeof AppRecipesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/recipes/new' | '/recipes'
+  fullPaths: '/' | '/sign-in' | '/recipes/$id' | '/recipes/new' | '/recipes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/recipes/new' | '/recipes'
+  to: '/' | '/sign-in' | '/recipes/$id' | '/recipes/new' | '/recipes'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/_auth/sign-in'
+    | '/_app/recipes/$id'
     | '/_app/recipes/new'
     | '/_app/recipes/'
   fileRoutesById: FileRoutesById
@@ -117,15 +127,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRecipesNewRouteImport
       parentRoute: typeof AppLayoutRoute
     }
+    '/_app/recipes/$id': {
+      id: '/_app/recipes/$id'
+      path: '/recipes/$id'
+      fullPath: '/recipes/$id'
+      preLoaderRoute: typeof AppRecipesIdRouteImport
+      parentRoute: typeof AppLayoutRoute
+    }
   }
 }
 
 interface AppLayoutRouteChildren {
+  AppRecipesIdRoute: typeof AppRecipesIdRoute
   AppRecipesNewRoute: typeof AppRecipesNewRoute
   AppRecipesIndexRoute: typeof AppRecipesIndexRoute
 }
 
 const AppLayoutRouteChildren: AppLayoutRouteChildren = {
+  AppRecipesIdRoute: AppRecipesIdRoute,
   AppRecipesNewRoute: AppRecipesNewRoute,
   AppRecipesIndexRoute: AppRecipesIndexRoute,
 }

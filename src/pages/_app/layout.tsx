@@ -18,12 +18,12 @@ function RouteComponent() {
 
 	const userNameFallback = useMemo(
 		() =>
-			user?.token
+			user?.name
 				.split(' ')
 				.map((letter) => letter[0])
 				.join('')
 				.toUpperCase() ?? 'RC', // Recipeez
-		[user?.token],
+		[user?.name],
 	)
 
 	function handleSignOut() {
