@@ -1,9 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
-import { PencilIcon, TrashIcon } from 'lucide-react'
-
+import { Loader2, PencilIcon, TrashIcon } from 'lucide-react'
+import { toast } from 'sonner'
+import { deleteRecipe } from '@/api/delete-recipe'
 import { getRecipe } from '@/api/get-recipe'
+import type { TGetRecipesResponse } from '@/api/get-recipes'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_app/recipes/$id')({
@@ -12,6 +14,8 @@ export const Route = createFileRoute('/_app/recipes/$id')({
 
 function RouteComponent() {
 	const { id } = Route.useParams()
+	const navigate = useNavigate()
+	const queryClient = useQueryClient()
 
 	const {
 		data: recipe,
@@ -21,6 +25,38 @@ function RouteComponent() {
 		queryKey: ['recipe', id],
 		queryFn: () => getRecipe(id),
 	})
+
+	function updateRecipeCache(recipeId: string) {
+		const recipesListCache = queryClient.getQueriesData<TGetRecipesResponse>({
+			queryKey: ['recipes'],
+		})
+		console.log({ recipeId, recipesListCache })
+
+		for (const [cacheKey, cacheData] of recipesListCache) {
+			if (!cacheData) return
+
+			queryClient.setQueryData<TGetRecipesResponse>(cacheKey, {
+				...cacheData.filter((recipe) => recipe.id !== recipeId),
+			})
+		}
+	}
+
+	const { mutateAsync: deleteRecipeFn, isPending: isDeletingRecipe } = useMutation({
+		mutationFn: deleteRecipe,
+		async onSuccess(_, { recipeId }) {
+			toast.success('Receita deletada com sucesso')
+
+			updateRecipeCache(recipeId)
+			navigate({ to: '/recipes', replace: true })
+		},
+		onError: () => {
+			toast.error('Erro ao deletar receita')
+		},
+	})
+
+	async function handleDeleteRecipe(id: string) {
+		await deleteRecipeFn({ recipeId: id })
+	}
 
 	if (isRecipeLoading) {
 		return <div>Loading...</div>
@@ -62,11 +98,11 @@ function RouteComponent() {
 			</article>
 			<ul>
 				<li>
-					<Button variant="outline" size="icon">
+					<Button variant="outline" size="icon" disabled={isDeletingRecipe}>
 						<PencilIcon className="w-4 h-4" />
 					</Button>
-					<Button variant="destructive" size="icon">
-						<TrashIcon className="w-4 h-4" />
+					<Button variant="destructive" size="icon" disabled={isDeletingRecipe} onClick={() => handleDeleteRecipe(id)}>
+						{isDeletingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
 					</Button>
 				</li>
 			</ul>
