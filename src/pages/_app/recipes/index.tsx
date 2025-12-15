@@ -47,11 +47,11 @@ function RouteComponent() {
 							className="h-max w-96 p-4 cursor-pointer border"
 							onClick={() => navigate({ to: '/recipes/$id', params: { id: recipe.id } })}
 						>
-							<article className="flex flex-col gap-2 rounded-lg w-full">
+							<article className="flex flex-col gap-2 rounded-lg w-full ">
 								<header>
 									<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
 									<h3 className="text-2xl font-bold w-max">{recipe.title}</h3>
-									<p className="text-sm text-zinc-500 truncate w-max">{recipe.description}</p>
+									<p className="text-sm text-zinc-500 truncate w-full text-left">{recipe.description}</p>
 								</header>
 							</article>
 						</Button>

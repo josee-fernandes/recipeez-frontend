@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { format } from 'date-fns'
+import { PencilIcon, TrashIcon } from 'lucide-react'
+
 import { getRecipe } from '@/api/get-recipe'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_app/recipes/$id')({
 	component: RouteComponent,
@@ -28,14 +31,14 @@ function RouteComponent() {
 	}
 
 	return (
-		<div>
-			<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 h-128">
+		<div className="max-w-[1200px] mx-auto py-4">
+			<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 min-h-128">
 				<header className="">
 					<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
 					<h3 className="text-2xl font-bold">{recipe.title}</h3>
-					<p className="text-sm text-zinc-500">{recipe.description}</p>
+					<p className="text-sm text-zinc-500 text-left wrap-break-word">{recipe.description}</p>
 				</header>
-				<section className="flex flex-col gap-4 overflow-x-auto">
+				<section className="flex flex-col gap-4">
 					<div>
 						<h4 className="text-lg font-bold">Ingredientes</h4>
 						<ul>
@@ -57,6 +60,16 @@ function RouteComponent() {
 					</p>
 				</footer>
 			</article>
+			<ul>
+				<li>
+					<Button variant="outline" size="icon">
+						<PencilIcon className="w-4 h-4" />
+					</Button>
+					<Button variant="destructive" size="icon">
+						<TrashIcon className="w-4 h-4" />
+					</Button>
+				</li>
+			</ul>
 		</div>
 	)
 }
