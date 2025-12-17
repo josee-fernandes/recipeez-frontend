@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AxiosError } from 'axios'
-import { Plus } from 'lucide-react'
+import { Image, Loader2, Plus } from 'lucide-react'
 import { getRecipes } from '@/api/get-recipes'
 import { RecipesSkeleton } from '@/components/recipes-skeleton'
 import { Button } from '@/components/ui/button'
@@ -60,7 +60,13 @@ function RouteComponent() {
 						>
 							<article className="flex flex-col gap-2 rounded-lg w-full">
 								<header>
-									<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+									{recipe.photo ? (
+										<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+									) : (
+										<div className="w-full h-40 flex items-center justify-center border rounded-lg bg-card">
+											<Image className="size-10" />
+										</div>
+									)}
 									<h3 className="text-2xl font-bold w-max">{recipe.title}</h3>
 									<p className="text-sm text-zinc-500 truncate w-full text-left">{recipe.description}</p>
 								</header>

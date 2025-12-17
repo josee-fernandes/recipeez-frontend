@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
-import { CheckIcon, Loader2, PencilIcon, PencilOffIcon, TrashIcon } from 'lucide-react'
+import { ArrowLeft, CheckIcon, Image, Loader2, PencilIcon, PencilOffIcon, TrashIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -186,7 +186,10 @@ function RouteComponent() {
 
 	return (
 		<div className="max-w-[1200px] mx-auto py-4">
-			<form onSubmit={handleSubmit(handleUpdateRecipe)}>
+			<Button type="button" variant="outline" size="icon" onClick={() => navigate({ to: '/recipes' })}>
+				<ArrowLeft className="w-4 h-4" />
+			</Button>
+			<form className="mt-6" onSubmit={handleSubmit(handleUpdateRecipe)}>
 				<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 min-h-128">
 					<header className="flex flex-col gap-2">
 						<div className="flex gap-2 mt-6 justify-end">
@@ -226,7 +229,15 @@ function RouteComponent() {
 									<Loader2 className="w-6 h-6 animate-spin" />
 								</div>
 							) : (
-								<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+								<>
+									{recipe.photo ? (
+										<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+									) : (
+										<div className="w-full h-40 flex items-center justify-center border rounded-lg bg-card">
+											<Image className="size-10" />
+										</div>
+									)}
+								</>
 							)}
 							<input
 								ref={fileInputRef}

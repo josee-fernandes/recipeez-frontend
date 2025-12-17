@@ -17,7 +17,7 @@ interface ICreateRecipeFormProps {
 const createRecipeFormSchema = z.object({
 	title: z.string().min(1, { message: 'O título é obrigatório' }),
 	description: z.string().min(1, { message: 'A descrição é obrigatória' }),
-	photo: z.instanceof(File),
+	photo: z.instanceof(File).optional(),
 	ingredients: z.array(z.string()),
 	instructions: z.string().min(1, { message: 'As instruções são obrigatórias' }),
 })
@@ -60,7 +60,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 		await createRecipeFn({
 			title: data.title,
 			description: data.description,
-			photo: data.photo,
+			photo: data?.photo,
 			ingredients: data.ingredients,
 			instructions: data.instructions,
 		})
@@ -94,7 +94,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 			<label htmlFor="description" className="flex gap-2 items-center">
 				Descrição
 			</label>
-			<Textarea id="description" className="border-2 rounded-md p-2" rows={4} {...register('description')} />
+			<Textarea id="description" className="border-2 rounded-md p-2 min-h-40" rows={4} {...register('description')} />
 			<label htmlFor="photo" className="flex gap-2 items-center">
 				Foto
 			</label>
@@ -189,7 +189,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 			<label htmlFor="instructions" className="flex gap-2 items-center">
 				Instruções
 			</label>
-			<Input id="instructions" type="text" className="border-2 rounded-md p-2" {...register('instructions')} />
+			<Textarea id="instructions" className="border-2 rounded-md p-2 min-h-40" rows={4} {...register('instructions')} />
 			<Button type="submit" disabled={isCreatingRecipe}>
 				{isCreatingRecipe ? <LoaderCircle className="animate-spin" /> : 'Criar receita'}
 			</Button>
