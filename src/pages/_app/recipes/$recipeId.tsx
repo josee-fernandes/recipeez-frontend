@@ -3,15 +3,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
 import { CheckIcon, Loader2, PencilIcon, PencilOffIcon, TrashIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
 import type { IRecipe } from '@/@types/recipe'
 import { deleteRecipe } from '@/api/delete-recipe'
 import { getRecipe } from '@/api/get-recipe'
-import type { TGetRecipesResponse } from '@/api/get-recipes'
-import { type IUpdateRecipeResponse, updateRecipe } from '@/api/update-recipte'
+import { type IUpdateRecipeResponse, updateRecipe } from '@/api/update-recipe'
+import { type IUpdateRecipePhotoResponse, updateRecipePhoto } from '@/api/update-recipe-photo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -33,6 +33,7 @@ function RouteComponent() {
 	const { recipeId } = Route.useParams()
 	const navigate = useNavigate()
 	const queryClient = useQueryClient()
+	const fileInputRef = useRef<HTMLInputElement>(null)
 
 	const {
 		data: recipe,
@@ -53,7 +54,10 @@ function RouteComponent() {
 		},
 	})
 
-	function updateRecipeCache(recipeId: string, updatedRecipe: IUpdateRecipeResponse & { id: string }) {
+	function updateRecipeCache(
+		recipeId: string,
+		updatedRecipe: (IUpdateRecipeResponse | IUpdateRecipePhotoResponse) & { id: string },
+	) {
 		const recipeCache = queryClient.getQueriesData<IRecipe>({
 			queryKey: ['recipe', recipeId],
 		})
@@ -70,7 +74,10 @@ function RouteComponent() {
 		}
 	}
 
-	function updateRecipesListCache(recipeId: string, updatedRecipe?: IUpdateRecipeResponse & { id: string }) {
+	function updateRecipesListCache(
+		recipeId: string,
+		updatedRecipe?: (IUpdateRecipeResponse | IUpdateRecipePhotoResponse) & { id: string },
+	) {
 		const recipesListCache = queryClient.getQueriesData<IRecipe[]>({
 			queryKey: ['recipes'],
 		})
@@ -118,6 +125,19 @@ function RouteComponent() {
 		},
 	})
 
+	const { mutateAsync: updateRecipePhotoFn, isPending: isUpdatingRecipePhoto } = useMutation({
+		mutationFn: updateRecipePhoto,
+		onSuccess: (data, { recipeId }) => {
+			toast.success('Foto da receita atualizada com sucesso')
+			updateRecipeCache(recipeId, data)
+			updateRecipesListCache(recipeId, data)
+			setIsEditing(false)
+		},
+		onError: () => {
+			toast.error('Erro ao atualizar foto da receita')
+		},
+	})
+
 	const [isEditing, setIsEditing] = useState(false)
 
 	async function handleDeleteRecipe(id: string) {
@@ -125,8 +145,35 @@ function RouteComponent() {
 	}
 
 	async function handleUpdateRecipe(data: TRecipeEditFormValues) {
-		console.log(data)
 		await updateRecipeFn({ recipeId, ...data })
+	}
+
+	async function handleUpdateRecipePhoto(photo: File) {
+		await updateRecipePhotoFn({ recipeId, photo })
+	}
+
+	async function handlePhotoFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+		const file = event.target.files?.[0]
+		if (!file) return
+
+		// Validar tipo de arquivo
+		if (!file.type.startsWith('image/')) {
+			toast.error('Por favor, selecione apenas arquivos de imagem')
+			event.target.value = ''
+			return
+		}
+
+		// Validar tamanho (5MB)
+		const maxSize = 5 * 1024 * 1024
+		if (file.size > maxSize) {
+			toast.error('A imagem deve ter no máximo 5MB')
+			event.target.value = ''
+			return
+		}
+
+		await handleUpdateRecipePhoto(file)
+
+		event.target.value = ''
 	}
 
 	if (isRecipeLoading) {
@@ -158,6 +205,7 @@ function RouteComponent() {
 								{isEditing ? <PencilOffIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
 							</Button>
 							<Button
+								type="button"
 								variant="destructive"
 								size="icon"
 								disabled={isDeletingRecipe}
@@ -166,7 +214,28 @@ function RouteComponent() {
 								{isDeletingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
 							</Button>
 						</div>
-						<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+						<Button
+							type="button"
+							variant="ghost"
+							className="w-full h-max p-0 hover:opacity-50"
+							onClick={() => fileInputRef.current?.click()}
+							disabled={isUpdatingRecipePhoto}
+						>
+							{isUpdatingRecipePhoto ? (
+								<div className="w-full h-40 flex items-center justify-center">
+									<Loader2 className="w-6 h-6 animate-spin" />
+								</div>
+							) : (
+								<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+							)}
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept="image/*"
+								className="hidden"
+								onChange={handlePhotoFileChange}
+							/>
+						</Button>
 						{isEditing ? (
 							<>
 								<Input type="text" {...register('title')} />
