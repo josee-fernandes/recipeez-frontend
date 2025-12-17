@@ -56,7 +56,7 @@ function RouteComponent() {
 						<Button
 							variant="ghost"
 							className="h-61.5 w-96 p-4 cursor-pointer border"
-							onClick={() => navigate({ to: '/recipes/$id', params: { id: recipe.id } })}
+							onClick={() => navigate({ to: '/recipes/$recipeId', params: { recipeId: recipe.id } })}
 						>
 							<article className="flex flex-col gap-2 rounded-lg w-full">
 								<header>
