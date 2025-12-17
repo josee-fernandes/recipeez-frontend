@@ -30,20 +30,20 @@ function RouteComponent() {
 		const recipesListCache = queryClient.getQueriesData<TGetRecipesResponse>({
 			queryKey: ['recipes'],
 		})
-		console.log({ recipeId, recipesListCache })
 
 		for (const [cacheKey, cacheData] of recipesListCache) {
 			if (!cacheData) return
 
-			queryClient.setQueryData<TGetRecipesResponse>(cacheKey, {
-				...cacheData.filter((recipe) => recipe.id !== recipeId),
-			})
+			queryClient.setQueryData<TGetRecipesResponse>(
+				cacheKey,
+				cacheData.filter((recipe) => recipe.id !== recipeId),
+			)
 		}
 	}
 
 	const { mutateAsync: deleteRecipeFn, isPending: isDeletingRecipe } = useMutation({
 		mutationFn: deleteRecipe,
-		async onSuccess(_, { recipeId }) {
+		onSuccess(_, { recipeId }) {
 			toast.success('Receita deletada com sucesso')
 
 			updateRecipeCache(recipeId)

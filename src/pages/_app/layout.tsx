@@ -48,6 +48,8 @@ function RouteComponent() {
 						navigate({ to: '/sign-in', replace: true })
 					}
 				}
+
+				return Promise.reject(error)
 			},
 		)
 
