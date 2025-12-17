@@ -12,6 +12,7 @@ import { deleteRecipe } from '@/api/delete-recipe'
 import { getRecipe } from '@/api/get-recipe'
 import { type IUpdateRecipeResponse, updateRecipe } from '@/api/update-recipe'
 import { type IUpdateRecipePhotoResponse, updateRecipePhoto } from '@/api/update-recipe-photo'
+import { RecipeSkeleton } from '@/components/recipe-skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -176,10 +177,6 @@ function RouteComponent() {
 		event.target.value = ''
 	}
 
-	if (isRecipeLoading) {
-		return <div>Loading...</div>
-	}
-
 	if (recipeError) {
 		return <div>Error: {recipeError.message}</div>
 	}
@@ -189,128 +186,141 @@ function RouteComponent() {
 			<Button type="button" variant="outline" size="icon" onClick={() => navigate({ to: '/recipes' })}>
 				<ArrowLeft className="w-4 h-4" />
 			</Button>
-			<form className="mt-6" onSubmit={handleSubmit(handleUpdateRecipe)}>
-				<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 min-h-128">
-					<header className="flex flex-col gap-2">
-						<div className="flex gap-2 mt-6 justify-end">
-							{isEditing && (
-								<Button type="submit" disabled={isUpdatingRecipe}>
-									{isUpdatingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckIcon className="w-4 h-4" />}
-								</Button>
-							)}
-							<Button
-								type="button"
-								variant="outline"
-								size="icon"
-								disabled={isDeletingRecipe}
-								onClick={() => setIsEditing((oldIsEditing) => !oldIsEditing)}
-							>
-								{isEditing ? <PencilOffIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
-							</Button>
-							<Button
-								type="button"
-								variant="destructive"
-								size="icon"
-								disabled={isDeletingRecipe}
-								onClick={() => handleDeleteRecipe(recipeId)}
-							>
-								{isDeletingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
-							</Button>
-						</div>
-						<Button
-							type="button"
-							variant="ghost"
-							className="w-full h-max p-0 hover:opacity-50"
-							onClick={() => fileInputRef.current?.click()}
-							disabled={isUpdatingRecipePhoto}
-						>
-							{isUpdatingRecipePhoto ? (
-								<div className="w-full h-40 flex items-center justify-center">
-									<Loader2 className="w-6 h-6 animate-spin" />
+			<div className="mt-6">
+				{isRecipeLoading && <RecipeSkeleton />}
+				{recipe && (
+					<form onSubmit={handleSubmit(handleUpdateRecipe)}>
+						<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 min-h-128">
+							<header className="flex flex-col gap-2">
+								<div className="flex gap-2 mt-6 justify-end">
+									{isEditing && (
+										<Button type="submit" disabled={isUpdatingRecipe}>
+											{isUpdatingRecipe ? (
+												<Loader2 className="w-4 h-4 animate-spin" />
+											) : (
+												<CheckIcon className="w-4 h-4" />
+											)}
+										</Button>
+									)}
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										disabled={isDeletingRecipe}
+										onClick={() => setIsEditing((oldIsEditing) => !oldIsEditing)}
+									>
+										{isEditing ? <PencilOffIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
+									</Button>
+									<Button
+										type="button"
+										variant="destructive"
+										size="icon"
+										disabled={isDeletingRecipe}
+										onClick={() => handleDeleteRecipe(recipeId)}
+									>
+										{isDeletingRecipe ? (
+											<Loader2 className="w-4 h-4 animate-spin" />
+										) : (
+											<TrashIcon className="w-4 h-4" />
+										)}
+									</Button>
 								</div>
-							) : (
-								<>
-									{recipe.photo ? (
-										<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
-									) : (
-										<div className="w-full h-40 flex items-center justify-center border rounded-lg bg-card">
-											<Image className="size-10" />
+								<Button
+									type="button"
+									variant="ghost"
+									className="w-full h-max p-0 hover:opacity-50"
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isUpdatingRecipePhoto}
+								>
+									{isUpdatingRecipePhoto ? (
+										<div className="w-full h-40 flex items-center justify-center">
+											<Loader2 className="w-6 h-6 animate-spin" />
 										</div>
+									) : (
+										<>
+											{recipe.photo ? (
+												<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+											) : (
+												<div className="w-full h-40 flex items-center justify-center border rounded-lg bg-card">
+													<Image className="size-10" />
+												</div>
+											)}
+										</>
 									)}
-								</>
-							)}
-							<input
-								ref={fileInputRef}
-								type="file"
-								accept="image/*"
-								className="hidden"
-								onChange={handlePhotoFileChange}
-							/>
-						</Button>
-						{isEditing ? (
-							<>
-								<Input type="text" {...register('title')} />
-								<Textarea rows={4} {...register('description')} />
-							</>
-						) : (
-							<>
-								<h3 className="text-2xl font-bold">{recipe.title}</h3>
-								<p className="text-sm text-muted-foreground text-left wrap-break-word">{recipe.description}</p>
-							</>
-						)}
-					</header>
-					<section className="flex flex-col gap-4">
-						<div>
-							<h4 className="text-lg font-bold">Ingredientes</h4>
-							{isEditing ? (
-								<Controller
-									control={control}
-									name="ingredients"
-									render={({ field: { onChange, value, ...field } }) => (
-										<Input
-											type="text"
-											className="border-2 rounded-md p-2"
-											{...field}
-											value={value ? value.join('; ') : ''}
-											onChange={(event) => {
-												const inputValue = event.target.value
-												const ingredientsArray = inputValue
-													.split(';')
-													.map((ingredient) => ingredient.trim())
-													.filter((ingredient) => ingredient.length > 0)
-												onChange(ingredientsArray)
-											}}
+									<input
+										ref={fileInputRef}
+										type="file"
+										accept="image/*"
+										className="hidden"
+										onChange={handlePhotoFileChange}
+									/>
+								</Button>
+								{isEditing ? (
+									<>
+										<Input type="text" {...register('title')} />
+										<Textarea rows={4} {...register('description')} />
+									</>
+								) : (
+									<>
+										<h3 className="text-2xl font-bold">{recipe.title}</h3>
+										<p className="text-sm text-muted-foreground text-left wrap-break-word">{recipe.description}</p>
+									</>
+								)}
+							</header>
+							<section className="flex flex-col gap-4">
+								<div>
+									<h4 className="text-lg font-bold">Ingredientes</h4>
+									{isEditing ? (
+										<Controller
+											control={control}
+											name="ingredients"
+											render={({ field: { onChange, value, ...field } }) => (
+												<Input
+													type="text"
+													className="border-2 rounded-md p-2"
+													{...field}
+													value={value ? value.join('; ') : ''}
+													onChange={(event) => {
+														const inputValue = event.target.value
+														const ingredientsArray = inputValue
+															.split(';')
+															.map((ingredient) => ingredient.trim())
+															.filter((ingredient) => ingredient.length > 0)
+														onChange(ingredientsArray)
+													}}
+												/>
+											)}
 										/>
+									) : (
+										<ul>
+											{recipe.ingredients.map((ingredient) => (
+												<li key={`${recipe.id}-${ingredient}`}>{ingredient}</li>
+											))}
+										</ul>
 									)}
-								/>
-							) : (
-								<ul>
-									{recipe.ingredients.map((ingredient) => (
-										<li key={`${recipe.id}-${ingredient}`}>{ingredient}</li>
-									))}
-								</ul>
-							)}
-						</div>
+								</div>
 
-						<div>
-							<h4 className="text-lg font-bold">Modo de preparo</h4>
-							{isEditing ? (
-								<Textarea rows={4} {...register('instructions')} />
-							) : (
-								<p className="text-base">{recipe.instructions}</p>
-							)}
-						</div>
-					</section>
-					<footer>
-						<p className="text-sm text-muted-foreground">
-							adicionado em: {format(new Date(recipe.createdAt), 'dd/MM/yyyy')}
-						</p>
-						<p className="text-sm text-muted-foreground">
-							última atualização: {format(new Date(recipe.updatedAt), 'dd/MM/yyyy')}
-						</p>
-					</footer>
-				</article>
-			</form>
+								<div>
+									<h4 className="text-lg font-bold">Modo de preparo</h4>
+									{isEditing ? (
+										<Textarea rows={4} {...register('instructions')} />
+									) : (
+										<p className="text-base">{recipe.instructions}</p>
+									)}
+								</div>
+							</section>
+							<footer>
+								<p className="text-sm text-muted-foreground">
+									adicionado em: {format(new Date(recipe.createdAt), 'dd/MM/yyyy')}
+								</p>
+								<p className="text-sm text-muted-foreground">
+									última atualização: {format(new Date(recipe.updatedAt), 'dd/MM/yyyy')}
+								</p>
+							</footer>
+						</article>
+					</form>
+				)}
+			</div>
 		</div>
 	)
 }

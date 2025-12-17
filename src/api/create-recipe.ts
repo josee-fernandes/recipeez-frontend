@@ -8,8 +8,23 @@ interface ICreateRecipeBody {
 	instructions: string
 }
 
+export interface ICreateRecipePhotoResponse {
+	photo: string
+}
+
+export interface ICreateRecipeResponse {
+	id: string
+	title: string
+	description: string
+	photo: string
+	ingredients: string[]
+	instructions: string
+	createdAt: string
+	updatedAt: string
+}
+
 export async function createRecipe(body: ICreateRecipeBody) {
-	const { data: recipeData } = await api.post('/recipes', {
+	const { data: recipeData } = await api.post<ICreateRecipeResponse>('/recipes', {
 		title: body.title,
 		description: body.description,
 		ingredients: body.ingredients,
@@ -20,11 +35,17 @@ export async function createRecipe(body: ICreateRecipeBody) {
 		const formData = new FormData()
 		formData.append('photo', body.photo)
 
-		await api.post(`/recipes/${recipeData.id}/photo`, formData, {
-			headers: {
-				'Content-Type': 'multipart/form-data',
+		const { data: photoData } = await api.post<ICreateRecipePhotoResponse>(
+			`/recipes/${recipeData.id}/photo`,
+			formData,
+			{
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
 			},
-		})
+		)
+
+		return { ...recipeData, ...photoData }
 	}
 
 	return recipeData

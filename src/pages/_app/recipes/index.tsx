@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AxiosError } from 'axios'
-import { Image, Loader2, Plus } from 'lucide-react'
+import { Image, Plus } from 'lucide-react'
 import { getRecipes } from '@/api/get-recipes'
 import { RecipesSkeleton } from '@/components/recipes-skeleton'
 import { Button } from '@/components/ui/button'

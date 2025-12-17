@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LoaderCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { createRecipe } from '@/api/create-recipe'
+import type { IRecipe } from '@/@types/recipe'
+import { createRecipe, type ICreateRecipeResponse } from '@/api/create-recipe'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from './ui/button'
@@ -25,6 +26,8 @@ const createRecipeFormSchema = z.object({
 type CreateRecipeFormValues = z.infer<typeof createRecipeFormSchema>
 
 export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate }) => {
+	const queryClient = useQueryClient()
+
 	const {
 		register,
 		handleSubmit,
@@ -43,9 +46,22 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 		},
 	})
 
+	function updateRecipesListCache(newRecipe: ICreateRecipeResponse) {
+		const recipesListCache = queryClient.getQueriesData<IRecipe[]>({
+			queryKey: ['recipes'],
+		})
+
+		for (const [cacheKey, cacheData] of recipesListCache) {
+			if (!cacheData) return
+
+			queryClient.setQueryData<IRecipe[]>(cacheKey, [...cacheData, newRecipe])
+		}
+	}
+
 	const { mutateAsync: createRecipeFn, isPending: isCreatingRecipe } = useMutation({
 		mutationFn: createRecipe,
-		onSuccess: () => {
+		onSuccess: (data) => {
+			updateRecipesListCache(data)
 			onCreate()
 		},
 		onError: () => {
