@@ -274,22 +274,29 @@ function RouteComponent() {
 										<Controller
 											control={control}
 											name="ingredients"
-											render={({ field: { onChange, value, ...field } }) => (
-												<Input
-													type="text"
-													className="border-2 rounded-md p-2"
-													{...field}
-													value={value ? value.join('; ') : ''}
-													onChange={(event) => {
-														const inputValue = event.target.value
-														const ingredientsArray = inputValue
-															.split(';')
-															.map((ingredient) => ingredient.trim())
-															.filter((ingredient) => ingredient.length > 0)
-														onChange(ingredientsArray)
-													}}
-												/>
-											)}
+											render={({ field: { onChange, value, ...field } }) => {
+												const [inputValue, setInputValue] = useState(value ? value.join('; ') : '')
+
+												return (
+													<Input
+														type="text"
+														className="border-2 rounded-md p-2"
+														{...field}
+														value={inputValue}
+														onChange={(event) => {
+															const newValue = event.target.value
+															setInputValue(newValue)
+														}}
+														onBlur={() => {
+															const ingredientsArray = inputValue
+																.split(';')
+																.map((ingredient) => ingredient.trim())
+																.filter((ingredient) => ingredient.length > 0)
+															onChange(ingredientsArray)
+														}}
+													/>
+												)
+											}}
 										/>
 									) : (
 										<ul>

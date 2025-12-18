@@ -175,31 +175,37 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 			<Controller
 				control={control}
 				name="ingredients"
-				render={({ field: { onChange, value, ...field } }) => (
-					<>
-						<Input
-							id="ingredients"
-							type="text"
-							className="border-2 rounded-md p-2"
-							{...field}
-							value={value ? value.join('; ') : ''}
-							onChange={(event) => {
-								const inputValue = event.target.value
+				render={({ field: { onChange, value, ...field } }) => {
+					const [inputValue, setInputValue] = useState(value ? value.join('; ') : '')
 
-								const ingredientsArray = inputValue
-									.split(';')
-									.map((ingredient) => ingredient.trim())
-									.filter((ingredient) => ingredient.length > 0)
-								onChange(ingredientsArray)
-							}}
-						/>
-						{errors.ingredients && (
-							<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-2">
-								{errors.ingredients.message}
-							</div>
-						)}
-					</>
-				)}
+					return (
+						<>
+							<Input
+								id="ingredients"
+								type="text"
+								className="border-2 rounded-md p-2"
+								{...field}
+								value={inputValue}
+								onChange={(event) => {
+									const newValue = event.target.value
+									setInputValue(newValue)
+								}}
+								onBlur={() => {
+									const ingredientsArray = inputValue
+										.split(';')
+										.map((ingredient) => ingredient.trim())
+										.filter((ingredient) => ingredient.length > 0)
+									onChange(ingredientsArray)
+								}}
+							/>
+							{errors.ingredients && (
+								<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-2">
+									{errors.ingredients.message}
+								</div>
+							)}
+						</>
+					)
+				}}
 			/>
 
 			<label htmlFor="instructions" className="flex gap-2 items-center">

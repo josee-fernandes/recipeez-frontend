@@ -36,8 +36,8 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="max-w-[1200px] mx-auto py-4">
-			<ul className="flex flex-wrap gap-4">
+		<div className="max-w-[1200px] mx-auto py-4 flex">
+			<ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mx-auto">
 				{isRecipesLoading && <RecipesSkeleton />}
 				{!isRecipesLoading && (
 					<li className="flex flex-col">
