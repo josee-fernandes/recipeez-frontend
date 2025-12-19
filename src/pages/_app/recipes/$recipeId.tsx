@@ -238,10 +238,13 @@ function RouteComponent() {
 								<Button
 									type="button"
 									variant="ghost"
-									className="w-full h-max p-0 hover:opacity-50"
+									className="group w-full h-max p-0!"
 									onClick={() => fileInputRef.current?.click()}
 									disabled={isUpdatingRecipePhoto}
 								>
+									{!isUpdatingRecipe && (
+										<PencilIcon className="absolute opacity-0 group-hover:opacity-100 z-10 transition-all" />
+									)}
 									{isUpdatingRecipePhoto ? (
 										<div className="w-full h-40 flex items-center justify-center">
 											<Loader2 className="w-6 h-6 animate-spin" />
@@ -252,10 +255,10 @@ function RouteComponent() {
 												<img
 													src={recipe.photo}
 													alt={recipe.title}
-													className="max-w-96 w-full md:w-96 h-40 object-cover rounded-lg"
+													className="max-w-96 w-full md:w-96 h-40 object-cover rounded-lg group-hover:opacity-50 transition-all"
 												/>
 											) : (
-												<div className="max-w-96 w-full md:w-96 h-40 flex items-center justify-center border rounded-lg bg-card">
+												<div className="max-w-96 w-full md:w-96 h-40 flex items-center justify-center border rounded-lg bg-card group-hover:opacity-10 group-hover:dark:opacity-5 transition-all">
 													<Image className="size-10" />
 												</div>
 											)}
@@ -272,7 +275,7 @@ function RouteComponent() {
 								{isEditing ? (
 									<>
 										<Input type="text" {...register('title')} />
-										<Textarea rows={4} {...register('description')} />
+										<Textarea className="min-h-40" rows={4} {...register('description')} />
 									</>
 								) : (
 									<>
@@ -337,7 +340,7 @@ function RouteComponent() {
 									<div>
 										<h4 className="text-lg font-bold">Modo de preparo</h4>
 										{isEditing ? (
-											<Textarea rows={4} {...register('instructions')} />
+											<Textarea className="min-h-40" rows={4} {...register('instructions')} />
 										) : (
 											<p className="text-base">{recipe.instructions}</p>
 										)}
