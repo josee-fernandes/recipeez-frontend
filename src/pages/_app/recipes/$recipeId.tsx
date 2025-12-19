@@ -15,6 +15,7 @@ import { type IUpdateRecipePhotoResponse, updateRecipePhoto } from '@/api/update
 import { RecipeSkeleton } from '@/components/recipe-skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 
 export const Route = createFileRoute('/_app/recipes/$recipeId')({
@@ -182,49 +183,52 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="max-w-[1200px] mx-auto py-4">
-			<Button type="button" variant="outline" size="icon" onClick={() => navigate({ to: '/recipes' })}>
-				<ArrowLeft className="w-4 h-4" />
-			</Button>
-			<div className="mt-6">
+		<div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-6">
+			<div className="flex justify-between items-center">
+				<Button
+					type="button"
+					variant="outline"
+					size="icon"
+					className="self-start"
+					onClick={() => navigate({ to: '/recipes' })}
+				>
+					<ArrowLeft className="w-4 h-4" />
+				</Button>
+
+				<div>
+					<div className="flex gap-2 justify-end">
+						{isEditing && (
+							<Button type="submit" disabled={isUpdatingRecipe}>
+								{isUpdatingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckIcon className="w-4 h-4" />}
+							</Button>
+						)}
+						<Button
+							type="button"
+							variant="outline"
+							size="icon"
+							disabled={isDeletingRecipe}
+							onClick={() => setIsEditing((oldIsEditing) => !oldIsEditing)}
+						>
+							{isEditing ? <PencilOffIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							size="icon"
+							disabled={isDeletingRecipe}
+							onClick={() => handleDeleteRecipe(recipeId)}
+						>
+							{isDeletingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
+						</Button>
+					</div>
+				</div>
+			</div>
+			<main className="mx-auto w-full">
 				{isRecipeLoading && <RecipeSkeleton />}
 				{recipe && (
 					<form onSubmit={handleSubmit(handleUpdateRecipe)}>
-						<article className="flex flex-col gap-2 border-2 rounded-lg p-4 max-w-96 w-96 min-h-128">
+						<article className="flex flex-col md:flex-row gap-2 p-4 w-full min-h-128">
 							<header className="flex flex-col gap-2">
-								<div className="flex gap-2 mt-6 justify-end">
-									{isEditing && (
-										<Button type="submit" disabled={isUpdatingRecipe}>
-											{isUpdatingRecipe ? (
-												<Loader2 className="w-4 h-4 animate-spin" />
-											) : (
-												<CheckIcon className="w-4 h-4" />
-											)}
-										</Button>
-									)}
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										disabled={isDeletingRecipe}
-										onClick={() => setIsEditing((oldIsEditing) => !oldIsEditing)}
-									>
-										{isEditing ? <PencilOffIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
-									</Button>
-									<Button
-										type="button"
-										variant="destructive"
-										size="icon"
-										disabled={isDeletingRecipe}
-										onClick={() => handleDeleteRecipe(recipeId)}
-									>
-										{isDeletingRecipe ? (
-											<Loader2 className="w-4 h-4 animate-spin" />
-										) : (
-											<TrashIcon className="w-4 h-4" />
-										)}
-									</Button>
-								</div>
 								<Button
 									type="button"
 									variant="ghost"
@@ -239,7 +243,11 @@ function RouteComponent() {
 									) : (
 										<>
 											{recipe.photo ? (
-												<img src={recipe.photo} alt={recipe.title} className="w-full h-40 object-cover rounded-lg" />
+												<img
+													src={recipe.photo}
+													alt={recipe.title}
+													className="w-full h-40 object-cover rounded-lg max-w-96"
+												/>
 											) : (
 												<div className="w-full h-40 flex items-center justify-center border rounded-lg bg-card">
 													<Image className="size-10" />
@@ -262,72 +270,80 @@ function RouteComponent() {
 									</>
 								) : (
 									<>
-										<h3 className="text-2xl font-bold">{recipe.title}</h3>
-										<p className="text-sm text-muted-foreground text-left wrap-break-word">{recipe.description}</p>
+										<h3 className="text-2xl font-bold text-center md:text-left">{recipe.title}</h3>
+										<p className="text-sm text-muted-foreground text-center md:text-left wrap-break-word">
+											{recipe.description}
+										</p>
 									</>
 								)}
 							</header>
-							<section className="flex flex-col gap-4">
-								<div>
-									<h4 className="text-lg font-bold">Ingredientes</h4>
-									{isEditing ? (
-										<Controller
-											control={control}
-											name="ingredients"
-											render={({ field: { onChange, value, ...field } }) => {
-												const [inputValue, setInputValue] = useState(value ? value.join('; ') : '')
+							<Separator className="md:hidden" />
+							<Separator orientation="vertical" className="hidden md:block h-auto!" />
+							<div className="flex-1 flex flex-col gap-4 ">
+								<section className="flex-1 flex flex-col gap-4">
+									<div>
+										<h4 className="text-lg font-bold">Ingredientes</h4>
+										{isEditing ? (
+											<Controller
+												control={control}
+												name="ingredients"
+												render={({ field: { onChange, value, ...field } }) => {
+													const [inputValue, setInputValue] = useState(value ? value.join('; ') : '')
 
-												return (
-													<Input
-														type="text"
-														className="border-2 rounded-md p-2"
-														{...field}
-														value={inputValue}
-														onChange={(event) => {
-															const newValue = event.target.value
-															setInputValue(newValue)
-														}}
-														onBlur={() => {
-															const ingredientsArray = inputValue
-																.split(';')
-																.map((ingredient) => ingredient.trim())
-																.filter((ingredient) => ingredient.length > 0)
-															onChange(ingredientsArray)
-														}}
-													/>
-												)
-											}}
-										/>
-									) : (
-										<ul>
-											{recipe.ingredients.map((ingredient) => (
-												<li key={`${recipe.id}-${ingredient}`}>{ingredient}</li>
-											))}
-										</ul>
-									)}
-								</div>
+													return (
+														<Input
+															type="text"
+															className="border-2 rounded-md p-2"
+															{...field}
+															value={inputValue}
+															onChange={(event) => {
+																const newValue = event.target.value
+																setInputValue(newValue)
+															}}
+															onBlur={() => {
+																const ingredientsArray = inputValue
+																	.split(';')
+																	.map((ingredient) => ingredient.trim())
+																	.filter((ingredient) => ingredient.length > 0)
+																onChange(ingredientsArray)
+															}}
+														/>
+													)
+												}}
+											/>
+										) : (
+											<ul>
+												{recipe.ingredients.map((ingredient) => (
+													<li key={`${recipe.id}-${ingredient}`}>{ingredient}</li>
+												))}
+											</ul>
+										)}
+									</div>
+									<Separator />
 
-								<div>
-									<h4 className="text-lg font-bold">Modo de preparo</h4>
-									{isEditing ? (
-										<Textarea rows={4} {...register('instructions')} />
-									) : (
-										<p className="text-base">{recipe.instructions}</p>
-									)}
-								</div>
-							</section>
-							<footer>
-								<p className="text-sm text-muted-foreground">
-									adicionado em: {format(new Date(recipe.createdAt), 'dd/MM/yyyy')}
-								</p>
-								<p className="text-sm text-muted-foreground">
-									última atualização: {format(new Date(recipe.updatedAt), 'dd/MM/yyyy')}
-								</p>
-							</footer>
+									<div>
+										<h4 className="text-lg font-bold">Modo de preparo</h4>
+										{isEditing ? (
+											<Textarea rows={4} {...register('instructions')} />
+										) : (
+											<p className="text-base">{recipe.instructions}</p>
+										)}
+									</div>
+								</section>
+								<Separator />
+								<footer>
+									<p className="text-sm text-muted-foreground">
+										adicionado em: {format(new Date(recipe.createdAt), 'dd/MM/yyyy')}
+									</p>
+									<p className="text-sm text-muted-foreground">
+										última atualização: {format(new Date(recipe.updatedAt), 'dd/MM/yyyy')}
+									</p>
+								</footer>
+							</div>
 						</article>
 					</form>
 				)}
-			</div>
+			</main>
 		</div>
 	)
 }
