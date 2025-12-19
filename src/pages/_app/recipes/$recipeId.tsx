@@ -227,7 +227,7 @@ function RouteComponent() {
 				{isRecipeLoading && <RecipeSkeleton />}
 				{recipe && (
 					<form onSubmit={handleSubmit(handleUpdateRecipe)}>
-						<article className="flex flex-col md:flex-row gap-2 p-4 w-full min-h-128">
+						<article className="flex flex-col md:flex-row gap-2 w-full min-h-128">
 							<header className="flex flex-col gap-2">
 								<Button
 									type="button"
@@ -246,10 +246,10 @@ function RouteComponent() {
 												<img
 													src={recipe.photo}
 													alt={recipe.title}
-													className="w-full h-40 object-cover rounded-lg max-w-96"
+													className="max-w-96 w-full md:w-96 h-40 object-cover rounded-lg"
 												/>
 											) : (
-												<div className="w-full h-40 flex items-center justify-center border rounded-lg bg-card">
+												<div className="max-w-96 w-full md:w-96 h-40 flex items-center justify-center border rounded-lg bg-card">
 													<Image className="size-10" />
 												</div>
 											)}
