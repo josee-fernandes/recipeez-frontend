@@ -7,6 +7,7 @@ import { useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
+
 import type { IRecipe } from '@/@types/recipe'
 import { deleteRecipe } from '@/api/delete-recipe'
 import { getRecipe } from '@/api/get-recipe'
@@ -46,7 +47,12 @@ function RouteComponent() {
 		queryFn: () => getRecipe(recipeId),
 	})
 
-	const { register, handleSubmit, control } = useForm<TRecipeEditFormValues>({
+	const {
+		register,
+		handleSubmit,
+		control,
+		formState: { errors },
+	} = useForm<TRecipeEditFormValues>({
 		resolver: zodResolver(recipeEditFormSchema),
 		values: {
 			title: recipe?.title ?? '',
@@ -198,7 +204,7 @@ function RouteComponent() {
 				<div>
 					<div className="flex gap-2 justify-end">
 						{isEditing && (
-							<Button type="submit" disabled={isUpdatingRecipe}>
+							<Button type="submit" form="recipe-edit-form" disabled={isUpdatingRecipe}>
 								{isUpdatingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckIcon className="w-4 h-4" />}
 							</Button>
 						)}
@@ -226,7 +232,7 @@ function RouteComponent() {
 			<main className="mx-auto w-full">
 				{isRecipeLoading && <RecipeSkeleton />}
 				{recipe && (
-					<form onSubmit={handleSubmit(handleUpdateRecipe)}>
+					<form id="recipe-edit-form" onSubmit={handleSubmit(handleUpdateRecipe)}>
 						<article className="flex flex-col md:flex-row gap-2 w-full min-h-128">
 							<header className="flex flex-col gap-2">
 								<Button
@@ -288,26 +294,33 @@ function RouteComponent() {
 												control={control}
 												name="ingredients"
 												render={({ field: { onChange, value, ...field } }) => {
-													const [inputValue, setInputValue] = useState(value ? value.join('; ') : '')
+													const [inputValue, setInputValue] = useState(value ? value.join('\n') : '')
 
 													return (
-														<Input
-															type="text"
-															className="border-2 rounded-md p-2"
-															{...field}
-															value={inputValue}
-															onChange={(event) => {
-																const newValue = event.target.value
-																setInputValue(newValue)
-															}}
-															onBlur={() => {
-																const ingredientsArray = inputValue
-																	.split(';')
-																	.map((ingredient) => ingredient.trim())
-																	.filter((ingredient) => ingredient.length > 0)
-																onChange(ingredientsArray)
-															}}
-														/>
+														<>
+															<Textarea
+																className="border-2 rounded-md p-2 min-h-40"
+																rows={4}
+																{...field}
+																value={inputValue}
+																onChange={(event) => {
+																	const newValue = event.target.value
+																	setInputValue(newValue)
+																}}
+																onBlur={() => {
+																	const ingredientsArray = inputValue
+																		.split('\n')
+																		.map((ingredient) => ingredient.trim())
+																		.filter((ingredient) => ingredient.length > 0)
+																	onChange(ingredientsArray)
+																}}
+															/>
+															{errors.ingredients && (
+																<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-2">
+																	{errors.ingredients.message}
+																</div>
+															)}
+														</>
 													)
 												}}
 											/>

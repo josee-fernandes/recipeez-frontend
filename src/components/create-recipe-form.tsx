@@ -168,7 +168,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 			<label htmlFor="ingredients" className="flex gap-2 items-center">
 				Ingredientes
 				<p className="text-sm text-zinc-500">
-					(Separar ingrediente por ponto e vírgula. Exemplo: 200 g Farinha de trigo; Leite; Ovos; Açúcar; Sal)
+					(Um ingrediente por linha. Pressione Enter para adicionar um novo ingrediente)
 				</p>
 			</label>
 
@@ -180,10 +180,10 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 
 					return (
 						<>
-							<Input
+							<Textarea
 								id="ingredients"
-								type="text"
-								className="border-2 rounded-md p-2"
+								className="border-2 rounded-md p-2 min-h-40"
+								rows={4}
 								{...field}
 								value={inputValue}
 								onChange={(event) => {
@@ -192,7 +192,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 								}}
 								onBlur={() => {
 									const ingredientsArray = inputValue
-										.split(';')
+										.split('\n')
 										.map((ingredient) => ingredient.trim())
 										.filter((ingredient) => ingredient.length > 0)
 									onChange(ingredientsArray)
