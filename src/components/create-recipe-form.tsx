@@ -96,18 +96,18 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 
 	return (
 		<form onSubmit={handleSubmit(handleCreateRecipe)} className="flex flex-col gap-4">
-			<h2 className="text-2xl font-bold">Criar receita</h2>
+			<h2 className="text-2xl font-bold">Adicionar nova receita</h2>
 			{errors.title && (
 				<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
 					{errors.title.message}
 				</div>
 			)}
 
-			<label htmlFor="title" className="flex gap-2 items-center">
-				Título
+			<label htmlFor="title" className="asterisk">
+				Nome
 			</label>
 			<Input id="title" type="text" className="border-2 rounded-md p-2" {...register('title')} />
-			<label htmlFor="description" className="flex gap-2 items-center">
+			<label htmlFor="description" className="asterisk">
 				Descrição
 			</label>
 			<Textarea id="description" className="border-2 rounded-md p-2 min-h-40" rows={4} {...register('description')} />
@@ -165,7 +165,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 					<img src={photoPreview} alt="Preview" className="max-w-xs max-h-48 object-cover rounded" />
 				</div>
 			)}
-			<label htmlFor="ingredients" className="flex gap-2 items-center">
+			<label htmlFor="ingredients" className="flex flex-wrap gap-2 items-center">
 				Ingredientes
 				<p className="text-sm text-zinc-500">
 					(Um ingrediente por linha. Pressione Enter para adicionar um novo ingrediente)
@@ -208,7 +208,7 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 				}}
 			/>
 
-			<label htmlFor="instructions" className="flex gap-2 items-center">
+			<label htmlFor="instructions" className="asterisk">
 				Instruções
 			</label>
 			<Textarea id="instructions" className="border-2 rounded-md p-2 min-h-40" rows={4} {...register('instructions')} />

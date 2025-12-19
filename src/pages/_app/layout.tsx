@@ -66,8 +66,28 @@ function RouteComponent() {
 			<nav className="flex justify-between w-full p-4 items-center">
 				<h1 className="text-2xl font-bold">Recipeez</h1>
 				<div className="hidden md:flex items-center gap-4">
-					<Link to="/recipes">Receitas</Link>
-					<Link to="/recipes/new">Nova Receita</Link>
+					<Button asChild variant="outline">
+						<Link
+							to="/recipes"
+							activeProps={{ className: 'bg-primary! text-primary-foreground! hover:bg-primary/90! border-primary!' }}
+							activeOptions={{ exact: true }}
+							className="flex items-center gap-2"
+						>
+							<CookingPot className="size-4" />
+							Receitas
+						</Link>
+					</Button>
+					<Button asChild variant="outline">
+						<Link
+							to="/recipes/new"
+							activeProps={{ className: 'bg-primary! text-primary-foreground! hover:bg-primary/90! border-primary!' }}
+							activeOptions={{ exact: true }}
+							className="flex items-center gap-2"
+						>
+							<Plus className="size-4" />
+							Nova Receita
+						</Link>
+					</Button>
 					<ThemeToggle />
 					<Avatar>
 						<AvatarImage src="" alt="User" />

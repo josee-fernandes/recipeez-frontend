@@ -13,8 +13,7 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="max-w-[1200px] mx-auto py-4">
-			<h1>Nova Receita</h1>
+		<div className="max-w-[1200px] mx-auto p-4">
 			<CreateRecipeForm onCreate={onRecipeCreated} />
 		</div>
 	)
