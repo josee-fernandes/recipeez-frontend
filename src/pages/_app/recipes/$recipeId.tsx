@@ -14,6 +14,16 @@ import { getRecipe } from '@/api/get-recipe'
 import { type IUpdateRecipeResponse, updateRecipe } from '@/api/update-recipe'
 import { type IUpdateRecipePhotoResponse, updateRecipePhoto } from '@/api/update-recipe-photo'
 import { RecipeSkeleton } from '@/components/recipe-skeleton'
+import {
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -217,15 +227,33 @@ function RouteComponent() {
 						>
 							{isEditing ? <PencilOffIcon className="w-4 h-4" /> : <PencilIcon className="w-4 h-4" />}
 						</Button>
-						<Button
-							type="button"
-							variant="destructive"
-							size="icon"
-							disabled={isDeletingRecipe}
-							onClick={() => handleDeleteRecipe(recipeId)}
-						>
-							{isDeletingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
-						</Button>
+						<AlertDialog>
+							<AlertDialogTrigger asChild>
+								<Button type="button" variant="destructive" size="icon">
+									<TrashIcon className="w-4 h-4" />
+								</Button>
+							</AlertDialogTrigger>
+							<AlertDialogContent>
+								<AlertDialogHeader>
+									<AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+									<AlertDialogDescription>
+										Esta ação não pode ser desfeita. Esta receita será deletada permanentemente.
+									</AlertDialogDescription>
+								</AlertDialogHeader>
+								<AlertDialogFooter>
+									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<Button
+										type="button"
+										variant="destructive"
+										size={isDeletingRecipe ? 'icon' : 'default'}
+										disabled={isDeletingRecipe}
+										onClick={() => handleDeleteRecipe(recipeId)}
+									>
+										{isDeletingRecipe ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Deletar'}
+									</Button>
+								</AlertDialogFooter>
+							</AlertDialogContent>
+						</AlertDialog>
 					</div>
 				</div>
 			</div>
