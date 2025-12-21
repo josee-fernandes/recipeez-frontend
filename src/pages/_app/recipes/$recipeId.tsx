@@ -262,7 +262,7 @@ function RouteComponent() {
 				{recipe && (
 					<form id="recipe-edit-form" onSubmit={handleSubmit(handleUpdateRecipe)}>
 						<article className="flex flex-col md:flex-row gap-2 w-full min-h-128">
-							<header className="flex flex-col gap-2">
+							<header className="flex flex-col gap-2 md:max-w-96">
 								<Button
 									type="button"
 									variant="ghost"
@@ -356,7 +356,7 @@ function RouteComponent() {
 												}}
 											/>
 										) : (
-											<ul>
+											<ul className="list-disc list-inside">
 												{recipe.ingredients.map((ingredient) => (
 													<li key={`${recipe.id}-${ingredient}`}>{ingredient}</li>
 												))}
@@ -370,7 +370,7 @@ function RouteComponent() {
 										{isEditing ? (
 											<Textarea className="min-h-40" rows={4} {...register('instructions')} />
 										) : (
-											<p className="text-base">{recipe.instructions}</p>
+											<p className="text-base whitespace-pre-wrap">{recipe.instructions}</p>
 										)}
 									</div>
 								</section>
