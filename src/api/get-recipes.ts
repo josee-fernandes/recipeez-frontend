@@ -13,14 +13,14 @@ export type TGetRecipesResponse = {
 
 interface IGetRecipesParams {
 	pageIndex: number
-	perPage?: number
-	search?: string
+	recipeName?: string
 }
 
-export async function getRecipes({ pageIndex }: IGetRecipesParams) {
+export async function getRecipes({ pageIndex, recipeName }: IGetRecipesParams) {
 	const { data } = await api.get<TGetRecipesResponse>('/recipes', {
 		params: {
-			pageIndex: pageIndex,
+			pageIndex,
+			recipeName,
 		},
 	})
 

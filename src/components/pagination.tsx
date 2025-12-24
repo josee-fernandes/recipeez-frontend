@@ -18,25 +18,25 @@ export function Pagination({ pageIndex, perPage, totalCount }: IPaginationProps)
 	function handlePreviousPage() {
 		if (pageIndex === 0) return
 
-		navigate({ to: '/recipes', search: { page: page ? page - 1 : 0 } })
+		navigate({ to: '/recipes', search: (oldSearch) => ({ ...oldSearch, page: page ? page - 1 : 0 }) })
 	}
 
 	function handleNextPage() {
 		if (pageIndex === totalPages) return
 
-		navigate({ to: '/recipes', search: { page: page ? page + 1 : 1 } })
+		navigate({ to: '/recipes', search: (oldSearch) => ({ ...oldSearch, page: page ? page + 1 : 1 }) })
 	}
 
 	function handleFirstPage() {
-		navigate({ to: '/recipes', search: { page: 1 } })
+		navigate({ to: '/recipes', search: (oldSearch) => ({ ...oldSearch, page: 1 }) })
 	}
 
 	function handleLastPage() {
-		navigate({ to: '/recipes', search: { page: totalPages } })
+		navigate({ to: '/recipes', search: (oldSearch) => ({ ...oldSearch, page: totalPages }) })
 	}
 
 	return (
-		<div className="flex items-center justify-between gap-2">
+		<div className="flex flex-col md:flex-row items-center justify-between gap-2">
 			<span>
 				Página {pageIndex + 1} de {totalPages}
 			</span>

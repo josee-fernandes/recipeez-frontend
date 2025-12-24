@@ -7,12 +7,14 @@ import z from 'zod'
 
 import { getRecipes } from '@/api/get-recipes'
 import { Pagination } from '@/components/pagination'
+import { RecipesSearch } from '@/components/recipes/search'
 import { RecipesSkeleton } from '@/components/recipes-skeleton'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth'
 
 const recipesSearchSchema = z.object({
 	page: z.number().optional(),
+	recipeName: z.string().optional(),
 })
 
 export const Route = createFileRoute('/_app/recipes/')({
@@ -23,7 +25,7 @@ export const Route = createFileRoute('/_app/recipes/')({
 function RouteComponent() {
 	const { clearMemoryUser } = useAuthStore()
 	const navigate = useNavigate()
-	const { page = 1 } = Route.useSearch()
+	const { page = 1, recipeName = '' } = Route.useSearch()
 
 	const pageIndex = useMemo(() => Math.max(page - 1, 0), [page])
 
@@ -32,8 +34,8 @@ function RouteComponent() {
 		isPending: isRecipesLoading,
 		error: recipesError,
 	} = useQuery({
-		queryKey: ['recipes', pageIndex],
-		queryFn: () => getRecipes({ pageIndex: pageIndex ?? 0 }),
+		queryKey: ['recipes', pageIndex, recipeName],
+		queryFn: () => getRecipes({ pageIndex: pageIndex ?? 0, recipeName: recipeName ?? '' }),
 		staleTime: 1000 * 60 * 5,
 	})
 
@@ -42,20 +44,14 @@ function RouteComponent() {
 			if (recipesError.response?.data?.error === 'jwt expired') {
 				clearMemoryUser()
 
-				navigate({ to: '/sign-in', search: { email: '' } })
+				navigate({ to: '/sign-in', search: (oldSearch) => ({ ...oldSearch, email: '' }) })
 			}
 		}
 	}
 
 	return (
 		<div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
-			{!isRecipesLoading && result?.meta && (
-				<Pagination
-					pageIndex={result.meta.pageIndex}
-					perPage={result.meta.perPage}
-					totalCount={result.meta.totalCount}
-				/>
-			)}
+			<RecipesSearch />
 			<ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mx-auto">
 				{isRecipesLoading && <RecipesSkeleton />}
 				{result?.recipes.map((recipe) => (
@@ -82,6 +78,13 @@ function RouteComponent() {
 					</li>
 				))}
 			</ul>
+			{!isRecipesLoading && result?.meta && (
+				<Pagination
+					pageIndex={result.meta.pageIndex}
+					perPage={result.meta.perPage}
+					totalCount={result.meta.totalCount}
+				/>
+			)}
 		</div>
 	)
 }
