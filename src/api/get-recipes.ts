@@ -1,10 +1,27 @@
 import type { IRecipe } from '@/@types/recipe'
 import { api } from '@/lib/axios'
 
-export type TGetRecipesResponse = IRecipe[]
+export interface IGetRecipesResponse {
+	recipes: IRecipe[]
+	meta: {
+		pageIndex: number
+		perPage: number
+		totalCount: number
+	}
+}
 
-export async function getRecipes() {
-	const { data } = await api.get<IRecipe[]>('/recipes')
+interface IGetRecipesParams {
+	pageIndex: number
+	recipeName?: string
+}
+
+export async function getRecipes({ pageIndex, recipeName }: IGetRecipesParams) {
+	const { data } = await api.get<IGetRecipesResponse>('/recipes', {
+		params: {
+			pageIndex,
+			recipeName,
+		},
+	})
 
 	return data
 }

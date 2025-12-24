@@ -1,3 +1,4 @@
+import type { IRecipe } from '@/@types/recipe'
 import { api } from '@/lib/axios'
 
 interface ICreateRecipeBody {
@@ -12,19 +13,10 @@ export interface ICreateRecipePhotoResponse {
 	photo: string
 }
 
-export interface ICreateRecipeResponse {
-	id: string
-	title: string
-	description: string
-	photo: string
-	ingredients: string[]
-	instructions: string
-	createdAt: string
-	updatedAt: string
-}
+export type TCreateRecipeResponse = IRecipe
 
 export async function createRecipe(body: ICreateRecipeBody) {
-	const { data: recipeData } = await api.post<ICreateRecipeResponse>('/recipes', {
+	const { data: recipeData } = await api.post<TCreateRecipeResponse>('/recipes', {
 		title: body.title,
 		description: body.description,
 		ingredients: body.ingredients,

@@ -13,15 +13,13 @@ import { Input } from '@/components/ui/input'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import { useAuthStore } from '@/stores/auth'
 
+const signInSearchSchema = z.object({
+	email: z.string().optional(),
+})
+
 export const Route = createFileRoute('/_auth/sign-in')({
 	component: RouteComponent,
-	validateSearch: (search) => {
-		return z
-			.object({
-				email: z.string().optional(),
-			})
-			.parse(search)
-	},
+	validateSearch: signInSearchSchema,
 })
 
 const signInFormSchema = z.object({
@@ -33,7 +31,7 @@ type SignInFormValues = z.infer<typeof signInFormSchema>
 
 function RouteComponent() {
 	const navigate = useNavigate()
-	const { email } = Route.useSearch()
+	const { email = '' } = Route.useSearch()
 	const { setMemoryUser } = useAuthStore()
 
 	const {
@@ -90,10 +88,10 @@ function RouteComponent() {
 
 	return (
 		<div className="max-w-[1200px] mx-auto py-4 w-full h-screen flex flex-col items-center justify-center">
-			<div className="border-2 flex flex-col gap-4 p-8 rounded-lg shadow-2xl w-full max-w-96">
+			<div className="flex flex-col gap-4 p-8 rounded-lg shadow-2xl w-full max-w-96">
 				<h1 className="text-2xl font-bold text-center">Recipeez</h1>
 				<form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSignIn)}>
-					<Input id="email" type="email" placeholder="E-mail" {...register('email')} />
+					<Input id="email" type="email" placeholder="E-mail" disabled={isAuthenticating} {...register('email')} />
 
 					<InputGroup>
 						<InputGroupInput
