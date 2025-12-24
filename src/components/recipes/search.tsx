@@ -22,6 +22,11 @@ export function RecipesSearch() {
 	})
 
 	async function handleSearch(data: IRecipeSearchFormValues) {
+		if (data.recipeName === '') {
+			navigate({ to: '/recipes', search: (oldSearch) => ({ ...oldSearch, recipeName: undefined }) })
+			return
+		}
+
 		navigate({ to: '/recipes', search: (oldSearch) => ({ ...oldSearch, recipeName: data.recipeName }) })
 	}
 
