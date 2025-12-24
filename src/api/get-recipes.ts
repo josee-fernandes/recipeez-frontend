@@ -1,9 +1,8 @@
-import type { IUser } from '@/@types/auth'
 import type { IRecipe } from '@/@types/recipe'
 import { api } from '@/lib/axios'
 
-export type TGetRecipesResponse = {
-	recipes: (IRecipe & { user: Omit<IUser, 'token'> })[]
+export interface IGetRecipesResponse {
+	recipes: IRecipe[]
 	meta: {
 		pageIndex: number
 		perPage: number
@@ -17,7 +16,7 @@ interface IGetRecipesParams {
 }
 
 export async function getRecipes({ pageIndex, recipeName }: IGetRecipesParams) {
-	const { data } = await api.get<TGetRecipesResponse>('/recipes', {
+	const { data } = await api.get<IGetRecipesResponse>('/recipes', {
 		params: {
 			pageIndex,
 			recipeName,

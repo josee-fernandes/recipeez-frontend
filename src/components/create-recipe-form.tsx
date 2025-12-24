@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import type { IRecipe } from '@/@types/recipe'
-import { createRecipe, type ICreateRecipeResponse } from '@/api/create-recipe'
+import { createRecipe, type TCreateRecipeResponse } from '@/api/create-recipe'
+import type { IGetRecipesResponse } from '@/api/get-recipes'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from './ui/button'
@@ -46,15 +46,18 @@ export const CreateRecipeForm: React.FC<ICreateRecipeFormProps> = ({ onCreate })
 		},
 	})
 
-	function updateRecipesListCache(newRecipe: ICreateRecipeResponse) {
-		const recipesListCache = queryClient.getQueriesData<IRecipe[]>({
+	function updateRecipesListCache(newRecipe: TCreateRecipeResponse) {
+		const recipesListCache = queryClient.getQueriesData<IGetRecipesResponse>({
 			queryKey: ['recipes'],
 		})
 
 		for (const [cacheKey, cacheData] of recipesListCache) {
 			if (!cacheData) return
 
-			queryClient.setQueryData<IRecipe[]>(cacheKey, [...cacheData, newRecipe])
+			queryClient.setQueryData<IGetRecipesResponse>(cacheKey, {
+				...cacheData,
+				recipes: [...cacheData.recipes, newRecipe],
+			})
 		}
 	}
 
