@@ -1,27 +1,39 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { AxiosError } from 'axios'
-import { Image, Plus } from 'lucide-react'
+import { Image } from 'lucide-react'
+import { useMemo } from 'react'
+import z from 'zod'
+
 import { getRecipes } from '@/api/get-recipes'
+import { Pagination } from '@/components/pagination'
 import { RecipesSkeleton } from '@/components/recipes-skeleton'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/auth'
 
+const recipesSearchSchema = z.object({
+	page: z.number().optional(),
+})
+
 export const Route = createFileRoute('/_app/recipes/')({
 	component: RouteComponent,
+	validateSearch: recipesSearchSchema,
 })
 
 function RouteComponent() {
 	const { clearMemoryUser } = useAuthStore()
 	const navigate = useNavigate()
+	const { page = 1 } = Route.useSearch()
+
+	const pageIndex = useMemo(() => Math.max(page - 1, 0), [page])
 
 	const {
-		data: recipes,
+		data: result,
 		isPending: isRecipesLoading,
 		error: recipesError,
 	} = useQuery({
-		queryKey: ['recipes'],
-		queryFn: getRecipes,
+		queryKey: ['recipes', pageIndex],
+		queryFn: () => getRecipes({ pageIndex: pageIndex ?? 0 }),
 		staleTime: 1000 * 60 * 5,
 	})
 
@@ -36,22 +48,17 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="max-w-[1200px] mx-auto p-4 flex">
+		<div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
+			{!isRecipesLoading && result?.meta && (
+				<Pagination
+					pageIndex={result.meta.pageIndex}
+					perPage={result.meta.perPage}
+					totalCount={result.meta.totalCount}
+				/>
+			)}
 			<ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mx-auto">
 				{isRecipesLoading && <RecipesSkeleton />}
-				{!isRecipesLoading && (
-					<li className="flex flex-col">
-						<Button
-							variant="ghost"
-							className="h-61.5 max-w-96 p-4 cursor-pointer border border-dashed bg-card"
-							onClick={() => navigate({ to: '/recipes/new' })}
-						>
-							<Plus className="size-6" />
-							Nova Receita
-						</Button>
-					</li>
-				)}
-				{recipes?.map((recipe) => (
+				{result?.recipes.map((recipe) => (
 					<li key={recipe.id} className="flex flex-col">
 						<Button
 							variant="ghost"
